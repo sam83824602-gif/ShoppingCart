@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: lccnet
+
+  datasource:
+    url: jdbc:mariadb://localhost/product
+    username: root
+    password: root
+    driver-class-name: org.mariadb.jdbc.Driver
+ 
+    
+
+    
+      
+    
