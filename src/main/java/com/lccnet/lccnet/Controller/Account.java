@@ -118,7 +118,7 @@ public class Account {
         Connection conn = DriverManager.getConnection(url, user, password);
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
-        System.out.println("user:" + userID + "資料表建立成功！");
+        System.out.println("user:" + userID + "資料表建立成功....！");
 
     }
 }
