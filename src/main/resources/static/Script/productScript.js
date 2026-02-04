@@ -207,7 +207,7 @@ $(document).ready(function () {
         return $.ajax({
             url: API_URL,
             type: "GET",
-            dataType: "json" 0000
+            dataType: "json" 
         });
     }
 
