@@ -85,7 +85,7 @@ public class AccountController {
 
     @ResponseBody
     @PostMapping("/getAccountInfo")
-    public ResponseEntity<String> getAccountInfo(@RequestBody String jsonString) {
+    public ResponseEntity<String> getAccountInfo(@RequestBody String jsonString) throws Exception {
 
         String strAccount = "";
         try {
@@ -112,42 +112,38 @@ public class AccountController {
             }, accountInput.getUserID());
 
             strAccount = mapper.writeValueAsString(account_out);
-        } catch (DuplicateKeyException e) {
-
-            System.out.println("Catch Excpetion");
-            throw e;
         } catch (Exception e) {
+            throw e;
         }
         return ResponseEntity.ok(strAccount);
     }
 
     @ResponseBody
-    @PutMapping ("/putPassword")
-    public ResponseEntity<String> putPassword(@RequestBody String jsonString) {
+    @PutMapping("/putPassword")
+    public ResponseEntity<String> putPassword(@RequestBody String jsonString) throws Exception {
 
-        String strAccount = "";
         try {
             ObjectMapper mapper = new ObjectMapper();
             Account account = mapper.readValue(jsonString, Account.class);
-            System.out.println(account);
+
+            if (!account.passWordEquals()) {
+                throw new RuntimeException("密碼不相同");
+            }
+
             String sql = "UPDATE account SET password = ? WHERE userID = ?";
             // 返回受影響的列數
             jdbcTemplate1.update(sql, account.getPassword(), account.getUserID());
 
-        } catch (DuplicateKeyException e) {
-
-            System.out.println("Catch Excpetion");
-            throw e;
         } catch (Exception e) {
+            throw e;
         }
         return ResponseEntity.ok("密碼修改成功");
     }
 
     @ResponseBody
-    @PutMapping ("/putAccountInfo")
-    public ResponseEntity<String> putAccountInfo(@RequestBody String jsonString) {
+    @PutMapping("/putAccountInfo")
+    public ResponseEntity<String> putAccountInfo(@RequestBody String jsonString) throws Exception {
 
-        String strAccount = "";
         try {
             ObjectMapper mapper = new ObjectMapper();
             Account account = mapper.readValue(jsonString, Account.class);
@@ -158,11 +154,8 @@ public class AccountController {
             jdbcTemplate1.update(sql, account.getFirstName(), account.getLastName(), account.getEmail(),
                     account.getUserID());
 
-        } catch (DuplicateKeyException e) {
-
-            System.out.println("Catch Excpetion");
-            throw e;
         } catch (Exception e) {
+            throw e;
         }
         return ResponseEntity.ok("個人資料修改成功");
     }

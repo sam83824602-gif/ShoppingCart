@@ -50,6 +50,18 @@ $(document).ready(function () {
     }
 
 
+    function setCookie(name, value, days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        // Set the cookie with name, value, expiration, and path
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+
+
     function SetAccountInfo() {
 
         var lastName = $('#lastName').val();
@@ -314,6 +326,20 @@ $(document).ready(function () {
             // 在此處處理資料
         });
     });
+
+
+    $('#logout').on('click', function () {
+
+        setCookie("userID", null, 0);
+        setCookie("password", null, 0);
+
+        alert("登出成功!!");
+
+        setTimeout(function () { 
+            window.location.href = "/login"; }, 1000);
+
+
+    })
 
 
 
