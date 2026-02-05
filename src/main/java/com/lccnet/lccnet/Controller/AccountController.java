@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -91,10 +92,6 @@ public class AccountController {
             ObjectMapper mapper = new ObjectMapper();
             Account accountInput = mapper.readValue(jsonString, Account.class);
 
-
-
-
-
             String sql = "SELECT userID, password, email,first_name,last_name FROM account WHERE userID = ?";
             Account account_out = jdbcTemplate1.queryForObject(sql, (rs, row) -> {
                 Account account_tmp = new Account();
@@ -122,6 +119,52 @@ public class AccountController {
         } catch (Exception e) {
         }
         return ResponseEntity.ok(strAccount);
+    }
+
+    @ResponseBody
+    @PutMapping ("/putPassword")
+    public ResponseEntity<String> putPassword(@RequestBody String jsonString) {
+
+        String strAccount = "";
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Account account = mapper.readValue(jsonString, Account.class);
+            System.out.println(account);
+            String sql = "UPDATE account SET password = ? WHERE userID = ?";
+            // 返回受影響的列數
+            jdbcTemplate1.update(sql, account.getPassword(), account.getUserID());
+
+        } catch (DuplicateKeyException e) {
+
+            System.out.println("Catch Excpetion");
+            throw e;
+        } catch (Exception e) {
+        }
+        return ResponseEntity.ok("密碼修改成功");
+    }
+
+    @ResponseBody
+    @PutMapping ("/putAccountInfo")
+    public ResponseEntity<String> putAccountInfo(@RequestBody String jsonString) {
+
+        String strAccount = "";
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Account account = mapper.readValue(jsonString, Account.class);
+            System.out.println(account);
+
+            String sql = "UPDATE account SET first_name = ? ,last_name = ?, email = ? WHERE userID = ?";
+            // 返回受影響的列數
+            jdbcTemplate1.update(sql, account.getFirstName(), account.getLastName(), account.getEmail(),
+                    account.getUserID());
+
+        } catch (DuplicateKeyException e) {
+
+            System.out.println("Catch Excpetion");
+            throw e;
+        } catch (Exception e) {
+        }
+        return ResponseEntity.ok("個人資料修改成功");
     }
 
 }

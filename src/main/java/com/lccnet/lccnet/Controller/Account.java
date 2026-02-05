@@ -114,11 +114,17 @@ public class Account {
                 "(productName VARCHAR(50), " +
                 " number INTEGER, " +
                 " PRIMARY KEY ( productName ))";
-                
+
         Connection conn = DriverManager.getConnection(url, user, password);
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
         System.out.println("user:" + userID + "資料表建立成功！");
 
+    }
+
+    @Override
+    public String toString() {
+        return "Account [userID=" + userID + ", password=" + password + ", passwordCheck=" + passwordCheck + ", email="
+                + email + ", lastName=" + lastName + ", firstName=" + firstName + "]";
     }
 }

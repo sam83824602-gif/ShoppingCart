@@ -89,7 +89,7 @@ margin-top: 10px;
     display: grid;
 }
 
-.personalInfo {
+.Info {
     display: grid;
     grid-template-columns: 500px 500px;
     text-align: left;

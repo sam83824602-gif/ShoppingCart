@@ -11,8 +11,8 @@ $(document).ready(function () {
         firstName: "",
         email: "",
         passwordCheck: "",
-        password: password,
-        userID: userID,
+        password: "",
+        userID: "",
     };
 
     var userID = getCookie("userID");
@@ -23,7 +23,6 @@ $(document).ready(function () {
 
     if (userID) {
         $('#login').text(userID);
-        console.log("Username found:", userID, password);
     }
     else {
         window.location.href = "/login";
@@ -51,6 +50,26 @@ $(document).ready(function () {
     }
 
 
+    function SetAccountInfo() {
+
+        var lastName = $('#lastName').val();
+        var firstName = $('#firstName').val();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        var passwordCheck = $('#passwordCheck').val();
+
+
+        account.email = email;
+        account.firstName = firstName;
+        account.lastName = lastName;
+        account.password = password;
+        account.passwordCheck = passwordCheck;
+        account.userID = getCookie("userID");
+
+        return account;
+    }
+
+
     function loadDescription($ele) {
 
         $info = $("#info");
@@ -65,11 +84,13 @@ $(document).ready(function () {
 
 
 
-            $form_personalInfo = $('<form>').attr("id", "form_personalInfo");
-            $form_passwordManage = $('<form>').attr("id", "form_passwordManage");
-            $form_personalInfo.addClass("form-container");
-            $form_passwordManage.addClass("form-container");
+            $form_personalInfo = $('<form>')
+                .addClass("form-container")
+                .attr("id", "form_personalInfo");
 
+            $form_passwordManage = $('<form>')
+                .addClass("form-container")
+                .attr("id", "form_passwordManage");
 
             $label_LastName = $('<label>').text("姓氏").attr('for', 'lastName');
             $input_LastName = $('<input>').attr({
@@ -113,16 +134,12 @@ $(document).ready(function () {
             $form_personalInfo.append($label_email);
             $form_personalInfo.append($input_email);
             $form_personalInfo.append($button_Save);
-            // $button_Save = $('<button>').attr({
-            //     id: 'modify',
-            //     text: 'asdsad',
-            //     class: 'modify',
-            // });
 
-            $label_password = $('<label>').text("密碼修改").attr('for', 'newpassword');
+
+            $label_password = $('<label>').text("密碼修改").attr('for', 'password');
             $input_password = $('<input>').attr({
                 type: 'password',
-                id: 'newpassword',
+                id: 'password',
                 class: 'password',
                 required: 'required'
             });
@@ -152,7 +169,7 @@ $(document).ready(function () {
 
             $info.append($form_personalInfo);
             $info.append($form_passwordManage);
-            $info.addClass("personalInfo");
+            $info.addClass("Info");
         }
         else if ($ele.is($order)) {
 
@@ -214,7 +231,8 @@ $(document).ready(function () {
         data: JSON.stringify(account), // The data to send (stringify for JSON payload)
         success: function (response) {
             account = JSON.parse(response);
-            console.log("suceess");
+
+            loadDescription($("#accountInfo"));
         },
         error: function (xhr, status, error) {
             var errorResponse = JSON.parse(xhr.responseText).message;
@@ -222,7 +240,6 @@ $(document).ready(function () {
             alert(errorResponse); // 顯示 "發生錯誤: 資料不存在"
         }
     });
-
     $("#accountInfo, #order").on("click", function () {
 
         $accountInfo = $("#accountInfo");
@@ -239,35 +256,64 @@ $(document).ready(function () {
         else if ($(this).is($order)) {
 
             $order.addClass("selected");
-            $accountInfo.addClass("unselected   ");
+            $accountInfo.addClass("unselected");
         }
 
         loadDescription($(this));
 
     });
 
-    $('#form_personalInfo, #form_passwordManage').on('submit', function (event) {
-        // 阻止預設行為（即刷新頁面）
-        event.preventDefault();
 
-        console.log("表單數據:");
+    $(document).ready(function () {
+        $(document).on('submit', '#form_personalInfo', function (e) {
+            e.preventDefault(); // 阻止頁面重整
 
-        // 執行你的自定義邏輯，例如 AJAX
-        $.ajax({
-            url: 'your-api-url',
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                alert('提交成功，頁面未刷新！');
-            }
+            SetAccountInfo();
+
+            $.ajax({
+                url: '/putAccountInfo', // The URL to send the request to
+                type: 'PUT',                // The type of request
+                // dataType: 'text',            // The expected data type of the response
+                contentType: 'application/json; charset=utf-8', // Data encoding type
+                data: JSON.stringify(account), // The data to send (stringify for JSON payload)
+                success: function (response) {
+                    alert(response);
+
+                },
+                error: function (xhr, status, error) {
+                    var errorResponse = JSON.parse(xhr.responseText).message;
+                    console.log(errorResponse);
+                    alert(errorResponse); // 顯示 "發生錯誤: 資料不存在"
+                }
+            });
+            // 在此處處理資料
         });
-
-
     });
 
+    $(document).ready(function () {
+        $(document).on('submit', '#form_passwordManage', function (e) {
+            e.preventDefault();
+            SetAccountInfo();
 
+            $.ajax({
+                url: '/putPassword', // The URL to send the request to
+                type: 'PUT',                // The type of request
+                // dataType: 'text',            // The expected data type of the response
+                contentType: 'application/json; charset=utf-8', // Data encoding type
+                data: JSON.stringify(account), // The data to send (stringify for JSON payload)
+                success: function (response) {
+                    alert(response);
 
-
+                },
+                error: function (xhr, status, error) {
+                    var errorResponse = JSON.parse(xhr.responseText).message;
+                    console.log(errorResponse);
+                    alert(errorResponse); // 顯示 "發生錯誤: 資料不存在"
+                }
+            });
+            // 在此處處理資料
+        });
+    });
 
 
 
