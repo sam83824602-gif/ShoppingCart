@@ -6,13 +6,12 @@ import java.util.List;
 
 import org.springframework.dao.DuplicateKeyException;
 
-@Service
 public class UserRepository {
 
-  private final JdbcTemplate jdbcTemplate;
+  private final  JdbcTemplate jdbcTemplate;
 
   public UserRepository(JdbcTemplate jdbcTemplate) { // 注入 JdbcTemplate
-    this.jdbcTemplate = jdbcTemplate;
+  this.jdbcTemplate = jdbcTemplate;
   }
 
   public ProductInfo getInfoByName(String name) {
@@ -62,6 +61,7 @@ public class UserRepository {
 
   public IndexProductList getIndexProductList() throws DuplicateKeyException {
 
+    
     String sqlWhey = "SELECT * FROM wheylist";
     // 使用 RowMapper 將結果映射為 Java 物件
 
@@ -80,7 +80,6 @@ public class UserRepository {
       return wheyIndexProduct;
     });
 
-    
     String sqlBcaa = "SELECT * FROM bcaalist";
     List<IndexProduct> bcaaList = jdbcTemplate.query(sqlBcaa, (rs, rowNum) -> {
       IndexProduct bcaaIndexProduct = new IndexProduct();

@@ -1,10 +1,11 @@
 package com.lccnet.lccnet.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,8 +16,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Controller
 public class AccountController {
 
+   
     @Autowired
-    private JdbcTemplate jdbcTemplate1;
+    @Qualifier("productJdbcTemplate")
+    private JdbcTemplate jdbcTemplateProduct;
+
+    @Autowired
+    @Qualifier("orderJdbcTemplate")
+    private JdbcTemplate jdbcTemplateOrder;
 
     @ResponseBody
     @PostMapping("/accountRegister")
@@ -34,11 +41,13 @@ public class AccountController {
             System.out.println(account.getPasswordCheck());
             System.out.println(account.getUserID());
 
-            if (account.emailExist(jdbcTemplate1)) {
+            UserRepository dRepository = new UserRepository(jdbcTemplateProduct);
+
+            if (account.emailExist(jdbcTemplateProduct)) {
                 throw new RuntimeException("email 已經被使用!!");
             }
 
-            if (account.accountExist(jdbcTemplate1)) {
+            if (account.accountExist(jdbcTemplateProduct)) {
                 throw new RuntimeException("帳號已經被使用");
             }
 
@@ -46,7 +55,6 @@ public class AccountController {
                 throw new RuntimeException("密碼不相同");
             }
 
-            UserRepository dRepository = new UserRepository(jdbcTemplate1);
             dRepository.writeAccount(account);
             account.createCartTabel("jdbc:mariadb://localhost/cart", "root", "root");
             System.out.println("Success");
@@ -68,11 +76,11 @@ public class AccountController {
             System.out.println(account.getPassword());
             System.out.println(account.getUserID());
 
-            if (!account.accountExist(jdbcTemplate1)) {
+            if (!account.accountExist(jdbcTemplateProduct)) {
                 throw new RuntimeException("帳號不存在");
             }
 
-            if (!account.passWordCheck(jdbcTemplate1)) {
+            if (!account.passWordCheck(jdbcTemplateProduct)) {
                 throw new RuntimeException("密碼錯誤");
             }
 
@@ -93,7 +101,8 @@ public class AccountController {
             Account accountInput = mapper.readValue(jsonString, Account.class);
 
             String sql = "SELECT userID, password, email,first_name,last_name FROM account WHERE userID = ?";
-            Account account_out = jdbcTemplate1.queryForObject(sql, (rs, row) -> {
+
+            Account account_out = jdbcTemplateProduct.queryForObject(sql, (rs, row) -> {
                 Account account_tmp = new Account();
 
                 String userID = rs.getString("userID");
@@ -132,7 +141,8 @@ public class AccountController {
 
             String sql = "UPDATE account SET password = ? WHERE userID = ?";
             // 返回受影響的列數
-            jdbcTemplate1.update(sql, account.getPassword(), account.getUserID());
+
+            jdbcTemplateProduct.update(sql, account.getPassword(), account.getUserID());
 
         } catch (Exception e) {
             throw e;
@@ -151,7 +161,31 @@ public class AccountController {
 
             String sql = "UPDATE account SET first_name = ? ,last_name = ?, email = ? WHERE userID = ?";
             // 返回受影響的列數
-            jdbcTemplate1.update(sql, account.getFirstName(), account.getLastName(), account.getEmail(),
+
+            jdbcTemplateProduct.update(sql, account.getFirstName(), account.getLastName(),
+                    account.getEmail(),
+                    account.getUserID());
+
+        } catch (Exception e) {
+            throw e;
+        }
+        return ResponseEntity.ok("個人資料修改成功");
+    }
+
+    @ResponseBody
+    @GetMapping("/getOrderList")
+    public ResponseEntity<String> getOrderList(@RequestBody String userID) throws Exception {
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Account account = mapper.readValue(userID, Account.class);
+            System.out.println(account);
+
+            String sql = "UPDATE account SET first_name = ? ,last_name = ?, email = ? WHERE userID = ?";
+            // 返回受影響的列數
+
+            jdbcTemplateProduct.update(sql, account.getFirstName(), account.getLastName(),
+                    account.getEmail(),
                     account.getUserID());
 
         } catch (Exception e) {

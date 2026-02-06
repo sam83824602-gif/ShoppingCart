@@ -1,6 +1,7 @@
 package com.lccnet.lccnet.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,13 +14,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class PageController {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate1;
+    @Qualifier("productJdbcTemplate")
+    private JdbcTemplate jdbcTemplateProduct;
 
-    // private JdbcTemplate jdbcTemplate2;
+    @Autowired
+    @Qualifier("orderJdbcTemplate")
+    private JdbcTemplate jdbcTemplateOrder;
 
     @GetMapping("/")
     public String home() {
 
+        
         return "index"; // 對應 templates/index.html
     }
 
@@ -52,7 +57,9 @@ public class PageController {
         // DataSource das = sdf.primaryDataSource();
         // UserRepository dRepository = new UserRepository(jdbcTemplate1);
         // UserRepository dRepository = new UserRepository();
-        UserRepository dRepository = new UserRepository(jdbcTemplate1);
+        UserRepository dRepository = new UserRepository(jdbcTemplateProduct);
+        // UserRepository dRepository = new UserRepository(jdbcTemplate1);
+
         ProductInfo productInfo = dRepository.getInfoByName(name);
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -69,8 +76,7 @@ public class PageController {
     @ResponseBody
     @GetMapping(path = "/api/ItemList/", produces = "application/json")
     public String GetItemList() {
-
-        UserRepository dRepository = new UserRepository(jdbcTemplate1);
+        UserRepository dRepository = new UserRepository(jdbcTemplateProduct);
         IndexProductList indexProductList = dRepository.getIndexProductList();
 
         String strIndexProductList = "";

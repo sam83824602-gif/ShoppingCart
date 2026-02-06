@@ -3,11 +3,16 @@ spring:
     name: lccnet
 
   datasource:
-    url: jdbc:mariadb://localhost/product
-    username: root
-    password: root
-    driver-class-name: org.mariadb.jdbc.Driver
- 
+    product:
+      jdbc-url: jdbc:mariadb://localhost:3306/product
+      username: root
+      password: root
+      driver-class-name: org.mariadb.jdbc.Driver
+    order:
+      jdbc-url: jdbc:mariadb://localhost:3306/order
+      username: root
+      password: root
+      driver-class-name: org.mariadb.jdbc.Driver 
     
 
     
